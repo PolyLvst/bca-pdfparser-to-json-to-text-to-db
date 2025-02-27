@@ -15,10 +15,10 @@ class PipelineRun:
         for file in pdf_files:
             print(f"->> Parsing file [{file}] ...")
 
-            dict_parsed = TokenizeUtil(file).tokenize().output_as_dict()
+            tokenizer = TokenizeUtil(file)
+            dict_parsed = tokenizer.tokenize().output_as_dict()
             source = os.path.basename(file)
-            # TODO get from parsed pdf
-            account_number = "00000"
+            account_number = tokenizer.get_parsed_pdf_obj().get_account_number()
             for key,value in dict_parsed.items():
                 value = PrepareDictBuilder(value).set_acno(account_number).set_source(source).build()
                 self.database_insert.append(value)

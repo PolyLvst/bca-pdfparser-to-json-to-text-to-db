@@ -57,6 +57,9 @@ class TokenizeUtil:
     
     def output_as_dict(self):
         return self.all_parsed
+    
+    def get_parsed_pdf_obj(self):
+        return self.parsed
 
 if __name__ == "__main__":
     tokenizer = TokenizeUtil("./input/sample.pdf").tokenize().output_as_json()

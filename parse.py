@@ -8,6 +8,7 @@ class ParseFromPDF:
         # area picker, hindari scan di luar area
         self.scan_area = fitz.Rect(30.457792207792295, 253.28463203463207, 570.3766233766235, 784.0909090909091)
         self.scan_area_periode = fitz.Rect(431.41017316017326, 105.20562770562776, 558.9859307359309, 123.43073593073598)
+        self.scan_area_account_number = fitz.Rect(431.41017316017326, 73.31168831168827, 568.098484848485, 86.98051948051955)
         # Amount pattern
         self.AMOUNT_PATTERN = shared_enum.Pattern.AMOUNT_PATTERN
         # Define regex to match MM/DD format
@@ -16,6 +17,7 @@ class ParseFromPDF:
         self.output_txt_path = './parsed.txt'
         self.text = ""
         self.periode = ""
+        self.account_number = ""
     
     def parse(self):
         IS_AMOUNT_SEEN = False
@@ -31,6 +33,9 @@ class ParseFromPDF:
                     if fitz.Rect(word[:4]).intersects(self.scan_area_periode): 
                         # Bisa berupa JANUARI atau 2025, karena looping word terakhir 2025 maka akan terassign 2025
                         self.periode = word[4]
+                        continue
+                    if fitz.Rect(word[:4]).intersects(self.scan_area_account_number):
+                        self.account_number = word[4]
                         continue
                     if not fitz.Rect(word[:4]).intersects(self.scan_area): continue
                     if re.match(self.AMOUNT_PATTERN, word[4]): IS_AMOUNT_SEEN = True
@@ -58,8 +63,13 @@ class ParseFromPDF:
     def get_periode(self):
         return self.periode
 
+    def get_account_number(self):
+        return self.account_number
+
 if __name__ == "__main__":
-    parser = ParseFromPDF("./sample.pdf")
+    parser = ParseFromPDF("./input/sample.pdf")
     parser.parse().output_as_txt()
     # periode = parser.parse().get_periode()
     # print(periode)
+    # account_number = parser.parse().get_account_number()
+    # print(account_number)
