@@ -23,6 +23,7 @@ class PipelineRun:
                 value = PrepareDictBuilder(value).set_acno(account_number).set_source(source).build()
                 self.database_insert.append(value)
 
+            print(f"->> Inserting to db [{self.database_insert.get_insert_len()}] ...")
             self.database_insert.insert()
             print("->> Inserted to db ...")
     

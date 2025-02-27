@@ -26,3 +26,6 @@ class DatabaseInserter:
 
     def get_engine(self):
         return self.engine
+    
+    def get_insert_len(self):
+        return len(self.bulk_insert)
