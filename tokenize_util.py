@@ -1,3 +1,5 @@
+import glob
+import os
 import re
 import uuid
 import json
@@ -62,6 +64,11 @@ class TokenizeUtil:
         return self.parsed
 
 if __name__ == "__main__":
-    tokenizer = TokenizeUtil("./input/sample.pdf").tokenize().output_as_json()
+    pdf_files = glob.glob("./input/*.pdf")
+    for file in pdf_files:
+        tokenizer = TokenizeUtil(file)
+        file_name = os.path.basename(file)
+        tokenizer.output_json_path = f"./{file_name}_{uuid.uuid4()}.json"
+        tokenizer.tokenize().output_as_json()
+        print(f"Done ... [{file_name}]")
     # tokenizer = TokenizeUtil("./sample.pdf").tokenize().output_as_json()
-    print("Done ...")

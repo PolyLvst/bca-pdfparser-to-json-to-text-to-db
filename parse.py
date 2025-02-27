@@ -1,3 +1,5 @@
+import glob
+import uuid
 import fitz
 import re
 import os
@@ -67,8 +69,13 @@ class ParseFromPDF:
         return self.account_number
 
 if __name__ == "__main__":
-    parser = ParseFromPDF("./input/sample.pdf")
-    parser.parse().output_as_txt()
+    pdf_files = glob.glob("./input/*.pdf")
+    for file in pdf_files:
+        parser = ParseFromPDF(file)
+        file_name = os.path.basename(file)
+        parser.output_txt_path = f"./{file_name}_{uuid.uuid4()}.txt"
+        parser.parse().output_as_txt()
+        print(f"Done ... [{file_name}]")
     # periode = parser.parse().get_periode()
     # print(periode)
     # account_number = parser.parse().get_account_number()

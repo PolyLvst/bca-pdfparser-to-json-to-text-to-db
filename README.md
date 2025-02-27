@@ -1,7 +1,15 @@
 ## PDF Parser BCA
 
 **Steps**\
-Masukkan file pdf ke folder input\
+Place pdf files to input folder\
 Install requirements\
-Konfigurasi config.yaml\
-Jalankan run.py\
+
+**To Database**\
+Edit config.yaml\
+Run run.py\
+
+**To Json**\
+Run tokenize_util.py
+
+**To Txt**\
+Run parse.py
