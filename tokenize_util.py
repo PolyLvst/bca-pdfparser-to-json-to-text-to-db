@@ -1,17 +1,16 @@
 import re
 import uuid
-import parse
 import json
 import shared_enum
+from parse import ParseFromPDF
 
 class TokenizeUtil:
-    def __init__(self, pdf_path, account_number):
+    def __init__(self, pdf_path):
         self.pdf_path = pdf_path
-        self.parsed = parse.ParseFromPDF(pdf_path=self.pdf_path).parse()
+        self.parsed = ParseFromPDF(pdf_path=self.pdf_path).parse()
         self.parsed_list = self.parsed.output_as_list()
         self.tahun = self.parsed.get_periode()
         self.all_parsed = {}
-        self.acno = account_number
         self.output_json_path = "./parsed.json"
     
     def find_payee_amount_balance(self, line):
@@ -22,8 +21,8 @@ class TokenizeUtil:
             if re.match(shared_enum.Pattern.AMOUNT_PATTERN, word):
                 # memastikan bahwa ketika balance sudah di assign, tidak akan merubahnya, begitu pula dengan amount
                 # Edge case ketika halaman terakhir, saldo akhir di anggap balance, fix dengan memastikan bahwa balance sudah pernah di assign
-                if amount != None and balance == None: balance = word
-                if amount == None and balance == None: amount = word
+                if amount != None and balance == None: balance = float(word.replace(",",""))
+                if amount == None and balance == None: amount = float(word.replace(",",""))
                 continue
             payee += f" {word}"
         payee = payee.strip()
@@ -42,12 +41,10 @@ class TokenizeUtil:
             payee, amount, balance = self.find_payee_amount_balance(line[6:].strip()) 
             
             template = {
-                "acno": self.acno,
                 "date": date_assemble,
                 "payee": payee,
                 "amount": amount,
                 "balance": balance,
-                "source": self.pdf_path
             }
 
             __uuid = uuid.uuid4()
@@ -62,6 +59,6 @@ class TokenizeUtil:
         return self.all_parsed
 
 if __name__ == "__main__":
-    tokenizer = TokenizeUtil("./input/sample.pdf", "0000000").tokenize().output_as_json()
-    # tokenizer = TokenizeUtil("./sample.pdf", "0000000").tokenize().output_as_json()
+    tokenizer = TokenizeUtil("./input/sample.pdf").tokenize().output_as_json()
+    # tokenizer = TokenizeUtil("./sample.pdf").tokenize().output_as_json()
     print("Done ...")
