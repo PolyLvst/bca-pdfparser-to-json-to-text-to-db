@@ -1,0 +1,7 @@
+db:
+  host: ""
+  port: "1433"
+  username: ""
+  password: ""
+  database: ""
+  table: ""
