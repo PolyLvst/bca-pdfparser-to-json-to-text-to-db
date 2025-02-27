@@ -1,4 +1,7 @@
-Masukkan file pdf ke folder input
-Install requirement
-Konfigurasi config.yaml
-Jalankan run.py
+## PDF Parser BCA
+
+**Steps**\
+Masukkan file pdf ke folder input\
+Install requirements\
+Konfigurasi config.yaml\
+Jalankan run.py\
