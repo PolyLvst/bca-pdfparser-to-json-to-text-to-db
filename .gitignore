@@ -1,0 +1,6 @@
+/venv
+parsed.*
+*.pdf
+/input
+__pycache__
+/ignore
