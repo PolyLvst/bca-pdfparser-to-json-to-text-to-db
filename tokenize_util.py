@@ -5,6 +5,7 @@ import uuid
 import json
 import shared_enum
 from parse import ParseFromPDF
+from calculate_balance import CalculateBalanceHelper
 
 class TokenizeUtil:
     def __init__(self, pdf_path):
@@ -14,6 +15,7 @@ class TokenizeUtil:
         self.tahun = self.parsed.get_periode()
         self.all_parsed = {}
         self.output_json_path = "./parsed.json"
+        self.calculate_balance_helper = CalculateBalanceHelper()
     
     def find_payee_amount_balance(self, line):
         payee = ""
@@ -28,6 +30,7 @@ class TokenizeUtil:
                 continue
             payee += f" {word}"
         payee = payee.strip()
+        balance = self.calculate_balance_helper.calculate_balance(payee, amount)
         return payee, amount, balance
 
     def tokenize(self):
