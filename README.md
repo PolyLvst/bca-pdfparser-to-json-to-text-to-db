@@ -2,11 +2,11 @@
 
 **Steps**\
 Place pdf files to input folder\
-Install requirements\
+Install requirements
 
 **To Database**\
 Edit config.yaml\
-Run run.py\
+Run run.py
 
 **To Json**\
 Run tokenize_util.py
