@@ -71,8 +71,6 @@ if __name__ == "__main__":
     for file in pdf_files:
         tokenizer = TokenizeUtil(file)
         file_name = os.path.basename(file)
-        account_number = tokenizer.get_parsed_pdf_obj().get_account_number()
-        print(account_number)
         tokenizer.output_json_path = f"./{file_name}_{uuid.uuid4()}.json"
         tokenizer.tokenize().output_as_json()
         print(f"Done ... [{file_name}]")

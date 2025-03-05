@@ -8,7 +8,7 @@ import shared_enum
 class ParseFromPDF:
     def __init__(self, pdf_path):
         # area picker, hindari scan di luar area
-        self.scan_area = fitz.Rect(30.457792207792295, 253.28463203463207, 570.3766233766235, 784.0909090909091)
+        self.scan_area = fitz.Rect(14.510822510822607, 180.3841991341991, 588.6017316017318, 831.9318181818182)
         self.scan_area_periode_account_number = fitz.Rect(315.22510822510833, 77.86796536796533, 565.8203463203464, 162.15909090909088)
         # Amount pattern
         self.AMOUNT_PATTERN = shared_enum.Pattern.AMOUNT_PATTERN
@@ -21,10 +21,11 @@ class ParseFromPDF:
         self.account_number = ""
     
     def parse(self):
-        IS_AMOUNT_SEEN = False
         if not os.path.exists(self.pdf_path): return self
+        IS_AMOUNT_SEEN = False
         with fitz.open(self.pdf_path) as doc:
             for page in doc:
+                IS_DATE_SEEN = False
                 # 31/01 TRSF E-BANKING CR 31/01 /ABCDE/00000 ABCDE 10,000,000.00 
                 # Edge case ketika payee memiliki HH/BB di dalam keterangan
                 words = page.get_text("words")
@@ -39,11 +40,14 @@ class ParseFromPDF:
                     if not fitz.Rect(word[:4]).intersects(self.scan_area): continue
                     if re.match(self.AMOUNT_PATTERN, word[4]): IS_AMOUNT_SEEN = True
                     if re.match(self.DATE_PATTERN, word[4]):
+                        date_string = word[4]
                         # Edge case pada saat payee memberikan keterangan 31/01 atau HH/BB
-                        date_transaction = f"{word[4].strip()}" if IS_AMOUNT_SEEN == False else f"\n{word[4].strip()}"
+                        date_transaction = f"{date_string.strip()}" if IS_AMOUNT_SEEN == False else f"\n{date_string.strip()}"
                         IS_AMOUNT_SEEN = False
+                        IS_DATE_SEEN = True
                         filtered_words.append(date_transaction)
-                    else:
+                        continue
+                    if IS_DATE_SEEN:
                         filtered_words.append(word[4].strip())
                 self.text += " ".join(filtered_words)
         # Finished parsing

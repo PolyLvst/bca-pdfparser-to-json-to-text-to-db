@@ -6,7 +6,6 @@ import os
 
 class PipelineRun:
     def __init__(self, input_folder):
-        self.database_insert = DatabaseInserter()
         self.input_folder = input_folder
         self.__check_folder()
 
@@ -16,15 +15,16 @@ class PipelineRun:
             print(f"->> Parsing file [{file}] ...")
 
             tokenizer = TokenizeUtil(file)
+            database_insert = DatabaseInserter()
             dict_parsed = tokenizer.tokenize().output_as_dict()
             source = os.path.basename(file)
             account_number = tokenizer.get_parsed_pdf_obj().get_account_number()
             for key,value in dict_parsed.items():
                 value = PrepareDictBuilder(value).set_acno(account_number).set_source(source).build()
-                self.database_insert.append(value)
+                database_insert.append(value)
 
-            print(f"->> Inserting to db [{self.database_insert.get_insert_len()}] ...")
-            self.database_insert.insert()
+            print(f"->> Inserting to db total [{database_insert.get_insert_len()}] ...")
+            database_insert.insert()
             print("->> Inserted to db ...")
     
     def __check_folder(self):

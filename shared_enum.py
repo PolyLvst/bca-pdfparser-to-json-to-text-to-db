@@ -14,8 +14,17 @@ class Transaction:
         "TRSF E-BANKING CR": ADD,
         "BUNGA": ADD,
         "BI-FAST CR": ADD,
+        "SWITCHING CR": ADD,
         "TRSF E-BANKING DB": SUB,
         "KARTU KREDIT/PL": SUB,
         "BIAYA ADM": SUB,
-        "PAJAK BUNGA": SUB
+        "PAJAK BUNGA": SUB,
+        "BYR VIA E-BANKING": SUB,
+        "TARIKAN TUNAI": SUB,
+        "BI-FAST DB": SUB,
+        "SWITCHING DB": SUB,
+        "KARTU DEBIT": SUB,
+        "TARIKAN ATM": SUB,
+        "TRANSAKSI DEBIT": SUB,
+        "DB DEBIT": SUB,
     }
