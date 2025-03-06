@@ -16,6 +16,7 @@ class TokenizeUtil:
         self.all_parsed = {}
         self.output_json_path = "./parsed.json"
         self.calculate_balance_helper = CalculateBalanceHelper()
+        self.types = shared_enum.Transaction.TYPES
     
     def find_payee_amount_balance(self, line):
         payee = ""
@@ -32,7 +33,16 @@ class TokenizeUtil:
         payee = re.sub(shared_enum.Pattern.BERSAMBUNG, "", payee)
         payee = payee.strip()
         balance = self.calculate_balance_helper.calculate_balance(payee, amount)
+        amount = self.get_minus_amount_if_spent(payee, amount)
         return payee, amount, balance
+    
+    def get_minus_amount_if_spent(self, payee, amount):
+        for key,formula in self.types.items():
+            if payee.startswith(key):
+                # balance + amount get the symbol only
+                symbol_string = formula[8:9]
+                return float(f"{symbol_string}{amount}")
+        return None
 
     def tokenize(self):
         for line in self.parsed_list:
