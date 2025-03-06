@@ -29,6 +29,7 @@ class TokenizeUtil:
                 if amount == None and balance == None: amount = float(word.replace(",",""))
                 continue
             payee += f" {word}"
+        payee = re.sub(shared_enum.Pattern.BERSAMBUNG, "", payee)
         payee = payee.strip()
         balance = self.calculate_balance_helper.calculate_balance(payee, amount)
         return payee, amount, balance
