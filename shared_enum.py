@@ -20,6 +20,8 @@ class Transaction:
         "CR KOREKSI BUNGA": ADD,
         "KARTU KREDIT": ADD,
         "TRSF E-BANKING DB": SUB,
+        "SETORAN TUNAI": ADD,
+        "SETORAN KLIRING": ADD,
         "KARTU KREDIT/PL": SUB,
         "BIAYA ADM": SUB,
         "PAJAK BUNGA": SUB,
@@ -32,4 +34,5 @@ class Transaction:
         "TRANSAKSI DEBIT": SUB,
         "DB DEBIT": SUB,
         "BA JASA E-BANKING": SUB,
+        "DB OTOMATIS": SUB,
     }
