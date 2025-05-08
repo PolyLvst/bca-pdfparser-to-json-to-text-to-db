@@ -43,6 +43,10 @@ class TokenizeUtil:
                 symbol_string = formula[8:9]
                 return float(f"{symbol_string}{amount}")
         return None
+    
+    def remove_trailing_end_page_footer(self, payee):
+        cleaned = re.sub(shared_enum.Pattern.FOOTER_END_PAGE, "", payee)
+        return cleaned.strip()
 
     def tokenize(self):
         for line in self.parsed_list:
@@ -55,6 +59,7 @@ class TokenizeUtil:
             date_assemble = f"{self.tahun}-{bulan}-{tanggal}"
 
             payee, amount, balance = self.find_payee_amount_balance(line[6:].strip()) 
+            payee = self.remove_trailing_end_page_footer(payee)
             
             template = {
                 "date": date_assemble,
