@@ -17,6 +17,7 @@ class ParseFromPDF:
         self.pdf_path = pdf_path
         self.output_txt_path = './parsed.txt'
         self.text = ""
+        self.text_with_middle_tokens = ""
         self.periode = ""
         self.account_number = ""
     
@@ -26,30 +27,43 @@ class ParseFromPDF:
         with fitz.open(self.pdf_path) as doc:
             for page in doc:
                 IS_DATE_SEEN = False
+                IS_MIDDLE_TO_LEFT_COLUMN_TOKEN_ADDED = False
                 # 31/01 TRSF E-BANKING CR 31/01 /ABCDE/00000 ABCDE 10,000,000.00 
                 # Edge case ketika payee memiliki HH/BB di dalam keterangan
                 words = page.get_text("words")
                 filtered_words = []
+                filtered_words_with_middle_tokens = []
                 for word in words:
                     # word index 0 - 3 : coordinate, word index 4 adalah content nya
-                    if fitz.Rect(word[:4]).intersects(self.scan_area_periode_account_number):
-                        if re.match(shared_enum.Pattern.ACCOUNT_NUMBER_PATTERN, word[4]): self.account_number = word[4]
-                        if re.match(shared_enum.Pattern.YEAR_PATTERN, word[4]): self.periode = word[4]
-                        # print(word[4])
+                    coordinate = word[:4] # x, y, z
+                    word_extracted = word[4]
+
+                    if fitz.Rect(coordinate).intersects(self.scan_area_periode_account_number):
+                        if re.match(shared_enum.Pattern.ACCOUNT_NUMBER_PATTERN, word_extracted): self.account_number = word_extracted
+                        if re.match(shared_enum.Pattern.YEAR_PATTERN, word_extracted): self.periode = word_extracted
                         continue
-                    if not fitz.Rect(word[:4]).intersects(self.scan_area): continue
-                    if re.match(self.AMOUNT_PATTERN, word[4]): IS_AMOUNT_SEEN = True
-                    if re.match(self.DATE_PATTERN, word[4]):
-                        date_string = word[4]
+                    if not fitz.Rect(coordinate).intersects(self.scan_area): continue
+                    if re.match(self.AMOUNT_PATTERN, word_extracted):
+                        IS_AMOUNT_SEEN = True
+                        if coordinate[0] >= shared_enum.Pattern.MIDDLE_X_COORDINATE and not IS_MIDDLE_TO_LEFT_COLUMN_TOKEN_ADDED:
+                            # print(coordinate, "added in line : ", word_extracted)
+                            filtered_words_with_middle_tokens.append(shared_enum.Pattern.MIDDLE_COLUMN_TOKEN)
+                            IS_MIDDLE_TO_LEFT_COLUMN_TOKEN_ADDED = True
+                    if re.match(self.DATE_PATTERN, word_extracted):
+                        date_string = word_extracted
                         # Edge case pada saat payee memberikan keterangan 31/01 atau HH/BB
                         date_transaction = f"{date_string.strip()}" if IS_AMOUNT_SEEN == False else f"\n{date_string.strip()}"
                         IS_AMOUNT_SEEN = False
                         IS_DATE_SEEN = True
+                        IS_MIDDLE_TO_LEFT_COLUMN_TOKEN_ADDED = False
                         filtered_words.append(date_transaction)
+                        filtered_words_with_middle_tokens.append(date_transaction)
                         continue
                     if IS_DATE_SEEN:
-                        filtered_words.append(word[4].strip())
+                        filtered_words.append(word_extracted.strip())
+                        filtered_words_with_middle_tokens.append(word_extracted.strip())
                 self.text += " ".join(filtered_words)
+                self.text_with_middle_tokens += " ".join(filtered_words_with_middle_tokens)
         # Finished parsing
         return self
 
@@ -62,6 +76,16 @@ class ParseFromPDF:
     def output_as_txt(self):
         with open(self.output_txt_path, 'w') as f:
             f.write(self.text)
+
+    def output_as_string_with_middle_tokens(self):
+        return self.text_with_middle_tokens
+
+    def output_as_list_with_middle_tokens(self):
+        return [row for row in self.text_with_middle_tokens.split("\n")] if self.text_with_middle_tokens else []
+
+    def output_as_txt_with_middle_tokens(self):
+        with open(self.output_txt_path, 'w') as f:
+            f.write(self.text_with_middle_tokens)
     
     def get_periode(self):
         return self.periode
@@ -76,6 +100,7 @@ if __name__ == "__main__":
         file_name = os.path.basename(file)
         parser.output_txt_path = f"./{file_name}_{uuid.uuid4()}.txt"
         parser.parse().output_as_txt()
+        # parser.parse().output_as_txt_with_middle_tokens()
         print(f"Done ... [{file_name}]")
     # periode = parser.parse().get_periode()
     # print(periode)

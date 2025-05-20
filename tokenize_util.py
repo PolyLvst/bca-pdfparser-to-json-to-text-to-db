@@ -11,7 +11,7 @@ class TokenizeUtil:
     def __init__(self, pdf_path):
         self.pdf_path = pdf_path
         self.parsed = ParseFromPDF(pdf_path=self.pdf_path).parse()
-        self.parsed_list = self.parsed.output_as_list()
+        self.parsed_list = self.parsed.output_as_list_with_middle_tokens()
         self.tahun = self.parsed.get_periode()
         self.all_parsed = {}
         self.output_json_path = "./parsed.json"
@@ -22,15 +22,19 @@ class TokenizeUtil:
         payee = ""
         amount = None
         balance = None
+        is_seen_middle_token = False
         for word in line.split(" "):
-            if re.match(shared_enum.Pattern.AMOUNT_PATTERN, word):
-                # memastikan bahwa ketika balance sudah di assign, tidak akan merubahnya, begitu pula dengan amount
-                # Edge case ketika halaman terakhir, saldo akhir di anggap balance, fix dengan memastikan bahwa balance sudah pernah di assign
-                if amount != None and balance == None: balance = float(word.replace(",",""))
-                if amount == None and balance == None: amount = float(word.replace(",",""))
-                continue
+            if word == shared_enum.Pattern.MIDDLE_COLUMN_TOKEN or is_seen_middle_token:
+                is_seen_middle_token = True
+                if re.match(shared_enum.Pattern.AMOUNT_PATTERN, word):
+                    # memastikan bahwa ketika balance sudah di assign, tidak akan merubahnya, begitu pula dengan amount
+                    # Edge case ketika halaman terakhir, saldo akhir di anggap balance, fix dengan memastikan bahwa balance sudah pernah di assign
+                    if amount != None and balance == None: balance = float(word.replace(",",""))
+                    if amount == None and balance == None: amount = float(word.replace(",",""))
+                    continue
             payee += f" {word}"
         payee = re.sub(shared_enum.Pattern.BERSAMBUNG, "", payee)
+        payee = payee.replace(shared_enum.Pattern.MIDDLE_COLUMN_TOKEN, "")
         payee = payee.strip()
         balance = self.calculate_balance_helper.calculate_balance(payee, amount)
         amount = self.get_minus_amount_if_spent(payee, amount)

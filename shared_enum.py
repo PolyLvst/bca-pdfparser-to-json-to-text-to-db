@@ -6,6 +6,8 @@ class Pattern:
     ACCOUNT_NUMBER_PATTERN = r"\b\d{10}\b" # 1234567890
     BERSAMBUNG = r"(?i)Bersambung ke Halaman berikut"
     FOOTER_END_PAGE = r"SALDO AWAL : MUTASI CR : \d+ MUTASI DB : \d+ SALDO AKHIR :"
+    MIDDLE_X_COORDINATE = 300 # x coordinate for middle of the page
+    MIDDLE_COLUMN_TOKEN = "{{middle#%||%#column}}"
 
 class Transaction:
     ADD = "balance + amount"

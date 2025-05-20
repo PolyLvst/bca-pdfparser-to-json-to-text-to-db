@@ -13,9 +13,8 @@ class CalculateBalanceHelper:
         for key,formula in self.types.items():
             if payee.startswith(key):
                 self.balance = eval(formula)
-                return self.balance
-        # Unknown types
-        return None
+        # Balance or Unknown types
+        return self.balance if self.balance else None
     
     def set_saldo_awal(self, saldo_awal):
         self.saldo_awal = saldo_awal
